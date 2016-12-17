@@ -1,12 +1,15 @@
 CFLAGS += -g
-.PHONY : all
+# .PHONY : all
 
-all : run
+all : server run
 
-run : server
-	./server
+run : m_server
+	./m_server
 
-server : server.c
+server : m_server.c
 
 clean :
 	find . -type f -executable -exec rm '{}' \;
+
+test : 
+	python test.py
