@@ -16,7 +16,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-void doprocessing (int sock);
+#include "m_server.h"
 
 int main( int argc, char *argv[] ) {
   int sockfd, newsockfd, portno, clilen;
@@ -73,7 +73,7 @@ int main( int argc, char *argv[] ) {
     if (pid == 0) {
       /* This is the client process */
       close(sockfd);
-      doprocessing(newsockfd);
+      m_server_child_handle(newsockfd);
       exit(0);
     }
     else {
@@ -83,7 +83,7 @@ int main( int argc, char *argv[] ) {
   } /* end of while */
 }
 
-void doprocessing (int sock) {
+/*void m_server_child_handle (int sock) {
    int n;
    char buffer[256];
    bzero(buffer,256);
@@ -102,4 +102,4 @@ void doprocessing (int sock) {
       exit(1);
    }
   
-}
+}*/
