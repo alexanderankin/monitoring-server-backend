@@ -13,6 +13,7 @@ child_handle.o :
 
 clean :
 	find . -type f -executable -exec rm '{}' \;
+	find . -type f -iname "*.o" -exec rm '{}' \;
 
 test : 
 	python test.py
