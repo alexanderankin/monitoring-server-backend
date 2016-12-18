@@ -5,4 +5,6 @@
 
 #include "m_server_helpers.h"
 
+#include "m_server_signals.h"
+
 #endif

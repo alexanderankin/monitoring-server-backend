@@ -18,30 +18,28 @@
 
 #include "m_server.h"
 
+#include <assert.h>
+
+#ifndef MAX_QUEUED_CONS
+#define MAX_QUEUED_CONS 5
+#endif
+
+int g_server_socket_handle; // global
+
 int main( int argc, char *argv[] ) {
-  int sockfd, newsockfd, portno, clilen;
-  char buffer[256];
-  struct sockaddr_in serv_addr, cli_addr;
-  int n, pid;
+  int server_socket_handle, accepted_socket_handle, portno;
+  struct sockaddr_in serv_addr;
+  int pid;
   
-  /* First call to socket() function */
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  
-  if (sockfd < 0) {
-    perror("ERROR opening socket");
-    exit(1);
-  }
-  
-  /* Initialize socket structure */
-  bzero((char *) &serv_addr, sizeof(serv_addr));
-  portno = 5001;
-  
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_addr.s_addr = INADDR_ANY;
-  serv_addr.sin_port = htons(portno);
-  
+  server_socket_handle = m_server_open_socket();
+  m_server_initialize_listen_address(&serv_addr, 5001);
+
+  assert((*((struct sockaddr *) &serv_addr)).sa_family == 2 );
+  assert((*((struct sockaddr *) &serv_addr)).sa_data[0] == 19 );
+  assert((*((struct sockaddr *) &serv_addr)).sa_data[1] == -119 );
+
   /* Now bind the host address using bind() call.*/
-  if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+  if (bind(server_socket_handle, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
     perror("ERROR on binding");
     exit(1);
   }
@@ -51,13 +49,14 @@ int main( int argc, char *argv[] ) {
     * for the incoming connection
   */
   
-  listen(sockfd,5);
-  clilen = sizeof(cli_addr);
+  listen(server_socket_handle, MAX_QUEUED_CONS);
+  g_server_socket_handle = server_socket_handle;
+  m_server_attatch_sigint();
   
   while (1) {
-    newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-    
-    if (newsockfd < 0) {
+    accepted_socket_handle = accept(server_socket_handle, NULL, NULL);
+
+    if (accepted_socket_handle < 0) {
       perror("ERROR on accept");
       exit(1);
     }
@@ -72,12 +71,12 @@ int main( int argc, char *argv[] ) {
     
     if (pid == 0) {
       /* This is the client process */
-      close(sockfd);
-      m_server_child_handle(newsockfd);
+      close(server_socket_handle);
+      m_server_child_handle(accepted_socket_handle);
       exit(0);
     }
     else {
-      close(newsockfd);
+      close(accepted_socket_handle);
     }
     
   } /* end of while */
