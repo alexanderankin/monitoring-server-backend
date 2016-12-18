@@ -20,5 +20,5 @@ void sighandler(int signum)
   printf("\nCaught signal %d, coming out...\n", signum);
   printf("Closing sock: %d, and force_exiting.\n", g_server_socket_handle);
   close(g_server_socket_handle);
-  exit(1);
+  exit(0);
 }
