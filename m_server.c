@@ -1,24 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <netdb.h>
-#include <netinet/in.h>
-
-#include <string.h>
-
-#include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <netdb.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "m_server.h"
-
 #include <assert.h>
+
+#include "m_server.h"
 
 #ifndef MAX_QUEUED_CONS
 #define MAX_QUEUED_CONS 5
@@ -38,17 +29,13 @@ int main( int argc, char *argv[] ) {
   assert((*((struct sockaddr *) &serv_addr)).sa_data[0] == 19 );
   assert((*((struct sockaddr *) &serv_addr)).sa_data[1] == -119 );
 
-  /* Now bind the host address using bind() call.*/
+  /* bind */
   if (bind(server_socket_handle, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
     perror("ERROR on binding");
     exit(1);
   }
   
-  /* Now start listening for the clients, here
-    * process will go in sleep mode and will wait
-    * for the incoming connection
-  */
-  
+  /* listen */
   listen(server_socket_handle, MAX_QUEUED_CONS);
   g_server_socket_handle = server_socket_handle;
   m_server_attatch_sigint();
@@ -79,26 +66,5 @@ int main( int argc, char *argv[] ) {
       close(accepted_socket_handle);
     }
     
-  } /* end of while */
+  }
 }
-
-/*void m_server_child_handle (int sock) {
-   int n;
-   char buffer[256];
-   bzero(buffer,256);
-   n = read(sock,buffer,255);
-   
-   if (n < 0) {
-      perror("ERROR reading from socket");
-      exit(1);
-   }
-   
-   printf("Here is the message: %s\n",buffer);
-   n = write(sock,"I got your message",18);
-   
-   if (n < 0) {
-      perror("ERROR writing to socket");
-      exit(1);
-   }
-  
-}*/
